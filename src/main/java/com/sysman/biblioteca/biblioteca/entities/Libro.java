@@ -1,10 +1,15 @@
 package com.sysman.biblioteca.biblioteca.entities;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "LIBROS")
@@ -44,9 +50,8 @@ public class Libro {
     private String descripcion;
 
     @Column(name = "FECHA_PUBLICACION")
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    @Past(message = "La fecha de publicación debe ser en el pasado")
-    private LocalDate fechaPublicacion;
+    @DateTimeFormat(pattern = "dd/MM/aaaa")
+    private Date fechaPublicacion;
 
     @NotNull(message = "El autor es obligatorio")
     @ManyToOne
