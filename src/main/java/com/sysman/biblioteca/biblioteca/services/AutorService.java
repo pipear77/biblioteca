@@ -9,9 +9,11 @@ public interface AutorService {
 
     List<Autor> findAll();
 
-    Optional<Autor> findById(Long id);
-
     Autor save(Autor autor);
 
+    Autor update(Long id, Autor autor);
+
     void deleteById(Long id);
+
+    Autor findById(Long id);
 }

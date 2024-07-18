@@ -3,6 +3,7 @@ package com.sysman.biblioteca.biblioteca.services;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.aspectj.bridge.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,31 +38,25 @@ public class LibroServiceImpl implements LibroService {
     @Override
     @Transactional
     public Libro save(Libro libro) {
-        if (libro.getAutor() == null) {
-            throw new IllegalArgumentException("El libro debe tener un autor.");
-        }
-
         Autor autor = repositoryAutor.findById(libro.getAutor().getId())
                 .orElseThrow(() -> new IllegalArgumentException("El autor no existe."));
-
         libro.setAutor(autor);
         return repository.save(libro);
     }
 
     @Override
+    @Transactional
     public Libro update(Long id, Libro libro) {
         Libro existingLibro = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El libro no existe."));
 
-        if (libro.getAutor() != null && libro.getAutor().getId() != null) {
-            Autor autor = repositoryAutor.findById(libro.getAutor().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("El autor no existe."));
-            existingLibro.setAutor(autor);
-        }
+        Autor autor = repositoryAutor.findById(libro.getAutor().getId())
+                .orElseThrow(() -> new IllegalArgumentException("El autor no existe."));
 
         existingLibro.setTitulo(libro.getTitulo());
         existingLibro.setDescripcion(libro.getDescripcion());
         existingLibro.setFechaPublicacion(libro.getFechaPublicacion());
+        existingLibro.setAutor(autor);
 
         return repository.save(existingLibro);
     }
@@ -69,7 +64,12 @@ public class LibroServiceImpl implements LibroService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        repository.deleteById(id);
+        Optional<Libro> optionalLibro = repository.findById(id);
+        if (optionalLibro.isPresent()) {
+            repository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Libro no encontrado");
+        }
     }
 
 }

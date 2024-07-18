@@ -1,7 +1,6 @@
 package com.sysman.biblioteca.biblioteca.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,9 @@ public class AutorServiceImpl implements AutorService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<Autor> findById(Long id) {
-        return repository.findById(id);
+    public Autor findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("El autor no existe."));
     }
 
     @Transactional
@@ -38,6 +38,17 @@ public class AutorServiceImpl implements AutorService {
     @Override
     public void deleteById(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Autor update(Long id, Autor autor) {
+        Autor existingAutor = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("El autor no existe."));
+
+        existingAutor.setNombre(autor.getNombre());
+        existingAutor.setApellido(autor.getApellido());
+
+        return repository.save(existingAutor);
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,18 +25,20 @@ public class LibroController {
     @Autowired
     private LibroService service;
 
-    @GetMapping
-    public List<Libro> list() {
-        return service.findAll();
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Libro>> findAll() {
+        List<Libro> libros = service.findAll();
+        return ResponseEntity.ok(libros);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> view(@PathVariable Long id) {
-        Optional<Libro> libroOptional = service.findById(id);
-        if (libroOptional.isPresent()) {
-            return ResponseEntity.ok(libroOptional.orElseThrow());
+    @GetMapping(value = "/{id}", produces = "application/json")
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        Optional<Libro> optionalLibro = service.findById(id);
+        if (optionalLibro.isPresent()) {
+            return ResponseEntity.ok(optionalLibro.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Libro no encontrado con id: " + id);
         }
-        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
@@ -44,17 +47,17 @@ public class LibroController {
             Libro savedLibro = service.save(libro);
             return ResponseEntity.ok(savedLibro);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Libro libro) {
         try {
             Libro updatedLibro = service.update(id, libro);
             return ResponseEntity.ok(updatedLibro);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
@@ -64,8 +67,10 @@ public class LibroController {
             service.deleteById(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+
 
 }

@@ -33,10 +33,10 @@ import lombok.Setter;
 public class Libro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", nullable = false, updatable = false)
+    @Column(name = "ID", nullable = false, insertable = false)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "El título es obligatorio")
     @Column(name = "TITULO", nullable = false, length = 40)
     private String titulo;
 
@@ -45,9 +45,10 @@ public class Libro {
 
     @Column(name = "FECHA_PUBLICACION")
     @JsonFormat(pattern = "dd/MM/yyyy")
-    @Past
+    @Past(message = "La fecha de publicación debe ser en el pasado")
     private LocalDate fechaPublicacion;
 
+    @NotNull(message = "El autor es obligatorio")
     @ManyToOne
     @JoinColumn(name = "ID_AUTOR", referencedColumnName = "ID", nullable = false)
     private Autor autor;
